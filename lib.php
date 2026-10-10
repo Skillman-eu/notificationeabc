@@ -60,11 +60,11 @@ class enrol_notificationeabc_plugin extends enrol_plugin
         $activeglobalenrol = $this->get_config('activarglobal');
         $activarglobalunenrolalert = $this->get_config('activarglobalunenrolalert');
         $activarglobalenrolupdated = $this->get_config('activarglobalenrolupdated');
-        $mensajeenrol = $this->get_config('location');
+        $mensajeenrol = $this->get_config('location', '');
         $plainmensajeenrol = strip_tags($mensajeenrol);
-        $mensajeunenrol = $this->get_config('unenrolmessage');
+        $mensajeunenrol = $this->get_config('unenrolmessage', '');
         $plainmensajeunenrol = strip_tags($mensajeunenrol);
-        $mensajeupdateenrol = $this->get_config('updatedenrolmessage');
+        $mensajeupdateenrol = $this->get_config('updatedenrolmessage', '');
         $plainmensajeupdateenrol = strip_tags($mensajeupdateenrol);
 
         switch ((int)$type) {
@@ -360,4 +360,3 @@ class enrol_notificationeabc_plugin extends enrol_plugin
     }
 
 } // End of class.
-

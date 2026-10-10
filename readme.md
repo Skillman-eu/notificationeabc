@@ -8,4 +8,7 @@ Send notifications to users when any enrolment event is executed
 2. Unzip the package inside enrol directory
 4. Go to Site administration-> notifications and press "Update database now"
 
-Compatible with moodle 3.2 and 3.3
+This release targets Moodle 4.1 through 4.5.
+
+See [the compatibility review](COMPATIBILITY.md) for upgrade instructions,
+additional findings and validation limitations.
