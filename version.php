@@ -26,9 +26,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017111703;
-$plugin->requires  = 2016120503;
+$plugin->version   = 2026101000;
+$plugin->requires  = 2022112800; // Moodle 4.1.
 $plugin->component = 'enrol_notificationeabc';
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.2.0.1';
-$plugin->cron      = 30;
+$plugin->release = '4.1-4.5.1';
