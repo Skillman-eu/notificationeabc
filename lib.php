@@ -118,7 +118,7 @@ class enrol_notificationeabc_plugin extends enrol_plugin
                 break;
 
             default:
-                break;
+                throw new invalid_parameter_exception('Unknown enrolment notification type');
         }
 
         $soporte = core_user::get_support_user();
@@ -296,19 +296,43 @@ class enrol_notificationeabc_plugin extends enrol_plugin
     public function get_instance_defaults() {
 
         $fields = array();
-        $fields['customtext1'] = $this->get_config('location');
-        $fields['customtext2'] = $this->get_config('unenrolmessage');
-        $fields['customtext3'] = $this->get_config('updatedenrolmessage');
+        $fields['customtext1'] = $this->get_config('location', '');
+        $fields['customtext2'] = $this->get_config('unenrolmessage', '');
+        $fields['customtext3'] = $this->get_config('updatedenrolmessage', '');
         $fields['status'] = 1;
         $fields['customint1'] = 0;
         $fields['customint2'] = 0;
-        $fields['customint3'] = $this->get_config('activeenrolalert');
-        $fields['customint4'] = $this->get_config('activeunenrolalert');
-        $fields['customint5'] = $this->get_config('activeenrolupdatedalert');
-        $fields['customchar1'] = $this->get_config('emailsender');
-        $fields['customchar2'] = $this->get_config('namesender');
-        $fields['customchar3'] = $this->get_config('emailreceiver');
+        $fields['customint3'] = $this->get_config('activeenrolalert', 0);
+        $fields['customint4'] = $this->get_config('activeunenrolalert', 0);
+        $fields['customint5'] = $this->get_config('activeenrolupdatedalert', 0);
+        $fields['customchar1'] = $this->get_config('emailsender', '');
+        $fields['customchar2'] = $this->get_config('namesender', '');
+        $fields['customchar3'] = $this->get_config('emailreceiver', '');
 
+        return $fields;
+    }
+
+    /**
+     * Convert edit form data to enrol fields for both creation and updates.
+     *
+     * The form has no customint4/customint5 controls. Missing checkboxes and
+     * optional editor values must not produce undefined-property warnings.
+     *
+     * @param stdClass $data Submitted form data
+     * @return array Fields accepted by add_instance() and update_record()
+     */
+    public function get_instance_fields(stdClass $data): array {
+        $fields = ['status' => $data->status, 'name' => $data->name];
+        for ($i = 1; $i <= 5; $i++) {
+            $field = 'customint' . $i;
+            $fields[$field] = $data->{$field} ?? 0;
+        }
+        for ($i = 1; $i <= 3; $i++) {
+            $field = 'customtext' . $i;
+            $fields[$field] = $data->{$field}['text'] ?? '';
+            $field = 'customchar' . $i;
+            $fields[$field] = $data->{$field} ?? '';
+        }
         return $fields;
     }
 

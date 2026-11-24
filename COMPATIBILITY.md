@@ -46,10 +46,9 @@ the existing fallback messages.
   observers still send all three event types for an enabled course instance.
   Disabled instances can also fall through to enabled global alerts. Decide
   the intended local/global precedence before changing this behavior.
-- New-instance submission reads `customint4` and `customint5`, although the
-  form only defines checkboxes `customint1` through `customint3`. This produces
-  undefined-property warnings. These old unused fields should be defaulted
-  or removed in a separate form cleanup.
+- New-instance submission previously read `customint4` and `customint5`,
+  although the form only defines checkboxes `customint1` through `customint3`.
+  This is fixed by the PHP 8.3 review below.
 - Global sender settings are copied into new course instances but ignored
   in the global-only send path, which uses the support user's name/email.
 - Custom recipient lookup assumes email uniqueness, but Moodle can allow
@@ -88,8 +87,42 @@ checkout with its PHPUnit test database initialized, run:
 vendor/bin/phpunit enrol/notificationeabc/tests/notification_test.php
 ```
 
-Validation in this plugin-only workspace is limited to source review and
-`git diff --check`: PHP, a Moodle installation and a test database are not
-available. PHPUnit, PHP lint, SMTP delivery and the end-to-end upgrade have
-not been executed here. Moodle 4.5 compatibility is therefore a source-based
-assessment pending the staging checks above.
+## PHP 8.3 review (24 November 2026)
+
+No PHP 8.3-specific syntax or removed-function incompatibility was found.
+Moodle 4.5 supports both PHP 8.1 and PHP 8.3; the plugin's minimum Moodle
+version does not imply that Moodle 4.1 itself supports PHP 8.3.
+
+The following runtime warnings were addressed for both PHP versions:
+
+- Both instance creation and updates now use `get_instance_fields()` to
+  default absent optional controls, including the legacy `customint4` and
+  `customint5` fields, to database-safe values. Editor contents and submitted
+  checkbox values are preserved.
+- New-instance editor, sender and checkbox defaults no longer contain null
+  when their global settings are missing.
+- Unknown notification types now throw `invalid_parameter_exception`
+  instead of continuing with an undefined `$mensaje` and passing null to
+  message formatting functions.
+
+Dynamic properties require no attribute workaround: the plugin adds data
+to `stdClass` records, which remain exempt from PHP 8.2/8.3 deprecations.
+The core message object exposes its properties through magic accessors.
+No PHP 8.2-only or PHP 8.3-only syntax was introduced.
+
+PHPUnit coverage includes unset/configured defaults, absent optional form
+controls, saving real enrolment fields, rejecting unknown types, and the
+existing three notification types with an additional registered recipient.
+The GitHub Actions workflow `.github/workflows/phpunit.yml` installs Moodle
+4.5 and a dedicated PostgreSQL test database and runs lint and PHPUnit on
+PHP 8.1 and 8.3. These CI jobs have not been run from this workspace.
+
+Local validation: all 13 plugin PHP files pass PHP 8.1.5 and PHP 8.3.37 lint, and
+`git diff --check` passes. The local Moodle checkouts lack their vendor
+dependencies, so the Moodle PHPUnit suite has not been executed locally.
+SMTP delivery and the end-to-end Moodle upgrade still require staging
+validation as described above.
+
+Sources: [PHP 8.3 incompatible changes](https://www.php.net/manual/en/migration83.incompatible.php),
+[PHP 8.3 deprecations](https://www.php.net/manual/en/migration83.deprecated.php),
+[PHP 8.2 dynamic property rules](https://www.php.net/manual/en/migration82.deprecated.php).

@@ -78,39 +78,9 @@ if ($mform->is_cancelled()) {
     if ($instance->id) {
         $reset = ($instance->status != $data->status);
 
-        $instance->status = $data->status;
-        $instance->name = $data->name;
-        $instance->customint1 = $data->customint1;
-        if (isset($data->customint2)) {
-            $instance->customint2 = $data->customint2;
-        } else {
-            $instance->customint2 = 0;
+        foreach ($plugin->get_instance_fields($data) as $field => $value) {
+            $instance->{$field} = $value;
         }
-
-        if (isset($data->customint3)) {
-            $instance->customint3 = $data->customint3;
-        } else {
-            $instance->customint3 = 0;
-        }
-
-        if (isset($data->customint4)) {
-            $instance->customint4 = $data->customint4;
-        } else {
-            $instance->customint4 = 0;
-        }
-
-        if (isset($data->customint5)) {
-            $instance->customint5 = $data->customint5;
-        } else {
-            $instance->customint5 = 0;
-        }
-
-        $instance->customtext1 = $data->customtext1['text'];
-        $instance->customtext2 = $data->customtext2['text'];
-        $instance->customtext3 = $data->customtext3['text'];
-        $instance->customchar1 = $data->customchar1;
-        $instance->customchar2 = $data->customchar2;
-        $instance->customchar3 = $data->customchar3;
         $instance->timemodified = time();
         $DB->update_record('enrol', $instance);
 
@@ -119,20 +89,7 @@ if ($mform->is_cancelled()) {
         }
 
     } else {
-        $fields = array(
-            'status' => $data->status,
-            'name' => $data->name,
-            'customint1' => $data->customint1,
-            'customint2' => $data->customint2,
-            'customint3' => $data->customint3,
-            'customint4' => $data->customint4,
-            'customint5' => $data->customint5,
-            'customtext1' => $data->customtext1['text'],
-            'customtext2' => $data->customtext2['text'],
-            'customtext3' => $data->customtext3['text'],
-            'customchar1' => $data->customchar1,
-            'customchar2' => $data->customchar2,
-            'customchar3' => $data->customchar3);
+        $fields = $plugin->get_instance_fields($data);
         $plugin->add_instance($course, $fields);
     }
 
